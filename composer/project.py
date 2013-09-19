@@ -1,4 +1,4 @@
-#(c) Máximo Cuadros <maximo@yunait.com>
+#(c) Maximo Cuadros <maximo@yunait.com>
 #
 # This source file is subject to the MIT license that is bundled
 # with this source code in the file LICENSE.
@@ -94,7 +94,7 @@ class Project:
 
     def __get_deploy_file(self, version=None):
         version = self.__get_version(version)
-        return '%s%s/%s/%s.tar' % (self.config['local_workspace_path'], self.name, version, version)
+        return '%s%s/%s/%s.tar.gz' % (self.config['local_workspace_path'], self.name, version, version)
 
     def __get_local_workspace_path(self, version=None):
         return '%s%s/%s' % (self.config['local_workspace_path'], self.name, self.__get_version(version))
