@@ -1,0 +1,11 @@
+example:
+    user: johndoe
+    hosts:
+        - www-1.example.com
+        - www-2.example.com
+    deploy_path: /var/www/sonata
+    remote_workspace_path: /home/johndoe/deploy/
+    local_workspace_path: /tmp/
+    repository: git@github.com:sonata-project/sandbox.git
+    composer_params: --no-dev --optimize-autoloader --no-interaction
+    post_install_commands: []
