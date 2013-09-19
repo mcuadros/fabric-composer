@@ -1,7 +1,7 @@
 fabric-composer
 ===============
 
-fabric-composer is a basic generic deploy system for all PHP projects ussing [Composer](https://getcomposer.org/) 
+fabric-composer is a basic generic deploy system for all PHP projects using [Composer](https://getcomposer.org/) 
 made with python library, [Fabric](http://docs.fabfile.org/).
 
 
@@ -24,37 +24,38 @@ wget https://github.com/mcuadros/fabric-composer/archive/master.zip
 unzip master.zip
 ```
 
-Setup the config.yaml file, you can just copy the example file or create a new one
+Setup the config.yaml file. You can just copy the example file or create a new one
 
 ```sh
 cd fabric-composer-master
 cp config.yaml.example config.yaml
 ```
 
-Now you are read to made the deploy ussing fab bin
+Now you are ready to make the deploy using fab bin
+
 ```sh
 fab deploy:example
 ```
 
-The list of command available is:
+These are tha avaliable commands:
 * ```fab deploy:<project_name> ```
-This lauch the deploy and all hosts
+Launches the deploy on all hosts
 
 * ```fab info:<project_name> ```
-Prints the some PHP and Composer related info from each server 
+Prints some PHP and Composer related info for each server 
 
 Configuration
 --------------
 
-The config file, called config.yaml, contains all the configuration needed to make the deploy of a project, as much as you want 
-you can define project configurations in the same config file
+The config file, called config.yaml, contains all the configuration needed to deploy a project.
+You can define as many project configurations as you want in the same file.
 
-All the properties are mandatory
+All properties are mandatory
 
 ```yaml
 example: # project name
     user: johndoe # username used by the SSH layer when connecting to remote hosts
-    hosts: # host list where the deploy will be do it
+    hosts: # host list where the deploy will be done
         - www-1.example.com
         - www-2.example.com
     deploy_path: /var/www/sonata # path where all files will be copied
@@ -68,16 +69,16 @@ example: # project name
 Deploy strategy
 ---------------
 
-The deploy is made as follow:
+The deploy is made as follows:
 
 1. [local] git clone from project repository
 2. [local] composer install 
 3. [local] execution of post_install_commands (optional)
 4. [local] the code is compressed 
 5. [remote] compressed code is delivered to every remote server
-6. [remote] the code is compressed
-7. [remote] composer update with --dry-run, this cmd validate the code 
-8. [remote] a ln is made from the workspace path to the deploy path
+6. [remote] the code is decompressed
+7. [remote] composer update with --dry-run, this will validate the code 
+8. [remote] a soft link is made from the workspace path to the deploy path
 
 License
 -------
