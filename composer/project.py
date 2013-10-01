@@ -21,7 +21,10 @@ class Project:
         with hide('output'):
             self.__create_local_paths()
             self.__install_composer_local()
-            self.__fetch()
+            self.__git_clone()
+            self.__composer_install()
+            self.__execute_post_prepare_commands()
+            self.__tar_code()
 
     def __create_local_paths(self):
         local('mkdir -p %s' % (self.config['local_workspace_path']))
@@ -37,12 +40,6 @@ class Project:
 
     def __get_composer_installer_command(self):
         return 'curl -sS https://getcomposer.org/installer | php -- --install-dir=%s' 
-
-    def __fetch(self):
-        self.__git_clone()
-        self.__composer_install()
-        self.__execute_post_install_commands()
-        self.__tar_code()
                 
     def __git_clone(self):
         local('git clone --depth 1 %s %s' % (self.config['repository'], self.__get_local_workspace_path()))
@@ -51,9 +48,9 @@ class Project:
         with lcd(self.__get_local_workspace_path()):
             local('%scomposer.phar install %s' % (self.config['local_workspace_path'], self.config['composer_params']))
 
-    def __execute_post_install_commands(self):
+    def __execute_post_prepare_commands(self):
         with lcd(self.__get_local_workspace_path()):
-            for command in self.config['post_install_commands']:
+            for command in self.config['post_prepare_commands']:
                 local(command)
 
     def __tar_code(self, version=None):
@@ -71,6 +68,7 @@ class Project:
             self.__untar_code(version)
             self.__validate_deploy()
             self.__link_code(version)
+            self.__execute_post_deploy_commands(version)
 
     def __upload_deploy_file(self, version):
         target = self.__get_remote_workspace_path(version)
@@ -92,6 +90,11 @@ class Project:
 
         run('ln -s %s %s' % (self.__get_remote_workspace_path(version), self.config['deploy_path']))
 
+    def __execute_post_deploy_commands(self, version):
+        with cd(self.__get_remote_workspace_path(version)):
+            for command in self.config['post_deploy_commands']:
+                run(command)
+
     def __get_deploy_file(self, version=None):
         version = self.__get_version(version)
         return '%s%s/%s/%s.tar.gz' % (self.config['local_workspace_path'], self.name, version, version)
@@ -109,13 +112,22 @@ class Project:
         return version
 
     def info(self):
-        self.prepare()
-
-        with hide('output'):
+        with hide('output', 'running', 'stdout', 'stderr'):
             php_version = run('php -v | head -n 1')
+            php_modules = self.__get_php_modules()
             composer_version = run('%scomposer.phar --version | head -n 1' % (self.config['remote_workspace_path']))
             md5_composer_lock = run('md5sum ' + self.config['deploy_path'] + '/composer.lock').split(' ')[0]
 
         print('%s: %s' % (green('PHP Version'), php_version))
+        print('%s: %s' % (green('PHP Modules'), php_modules))
+
         print('%s: %s' % (green('Composer Version'), composer_version))
         print('%s: %s' % (green('Composer Lock'), md5_composer_lock))
+
+    def __get_php_modules(self):
+        modules = []
+        for line in run('php -m').split('\r\n'):
+            if len(line) != 0 and line[0] != '[' and line[0] != '\t':
+                modules.append(line)
+
+        return modules

@@ -25,19 +25,19 @@ class Manager:
         self.config[role] = config
 
     def prepare_all(self):
-        if self.__needs_be_prepared() == False:
-            return
-
         for role in self.__get_roles_from_tasks():
-            self.prepare(role)
+            self.configure(role)
+
+            if self.__needs_be_prepared() == True:
+                self.prepare(role)
+
+    def configure(self, role):
+        self.__set_env_hosts(self.config[role]['hosts'])
+        self.__set_env_user(self.config[role]['user'])
 
     def prepare(self, role):
         print(green('Creating deploy files for %s' % (role)))
-
         self.__get_project(role).prepare()
-
-        self.__set_env_hosts(self.config[role]['hosts'])
-        self.__set_env_user(self.config[role]['user'])
 
     def deploy(self, role):
         print(green('Deploying %s' % (role)))
@@ -45,7 +45,6 @@ class Manager:
 
     def info(self, role):
         self.__get_project(role).info()
-
 
     def __set_env_user(self, user):
         env.user = user

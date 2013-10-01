@@ -62,7 +62,8 @@ example: # project name
     local_workspace_path: /tmp/ # workspace in local server
     repository: git@github.com:sonata-project/sandbox.git # git repository
     composer_params: --no-dev --optimize-autoloader --no-interaction # optional composer commands
-    post_install_commands: [] # commands to be executed at the end of composer install in local server
+    post_prepare_commands: [] # commands to be executed at the end of composer install in local server
+    post_deploy_commands: [] # commands to be executed at the end of composer update in the remote server
 ```
 
 Deploy strategy
